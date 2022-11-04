@@ -1,6 +1,7 @@
 package com.roles.entities;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(name = "USERS")

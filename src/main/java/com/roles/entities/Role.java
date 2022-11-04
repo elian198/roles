@@ -1,5 +1,7 @@
 package com.roles.entities;
 
+import com.roles.entities.enums.RoleName;
+
 import javax.persistence.*;
 
 @Entity
@@ -11,7 +13,7 @@ public class Role {
     private Long id;
 
     @Column(name = "NAME",nullable = false)
-    private String name;
+    private RoleName name;
 
     @Column(name = "DESCRIPTION", nullable = false)
     private String description;
@@ -26,11 +28,11 @@ public class Role {
         this.id = id;
     }
 
-    public String getName() {
+    public RoleName getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(RoleName name) {
         this.name = name;
     }
 
