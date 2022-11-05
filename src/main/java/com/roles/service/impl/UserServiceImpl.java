@@ -4,6 +4,8 @@ import com.roles.dto.UserDTO;
 import com.roles.entities.Role;
 import com.roles.entities.User;
 import com.roles.entities.enums.RoleName;
+import com.roles.exception.EmailAlreadyExistException;
+import com.roles.exception.UserNameAlreadyExistsException;
 import com.roles.repository.RoleRepository;
 import com.roles.repository.UserRepository;
 import com.roles.service.UserService;
@@ -33,11 +35,12 @@ public class UserServiceImpl implements UserService {
     public User save(UserDTO userDTO) {
         User user = userDTO.transformToUser();
 
-        /**
-         * todo creater the exceptions
-         */
-        if(repository.existsByEmail(user.getEmail())){
 
+        if(repository.existsByEmail(user.getEmail())){
+             throw new EmailAlreadyExistException("Email ocupado, elija otro por favor");
+        }
+        if(repository.existsByUsername(user.getUserName())){
+            throw new UserNameAlreadyExistsException("El nombre de usuario ya existe!! elija otro por favor");
         }
         Role role = new Role();
         role.setName(RoleName.USER);
