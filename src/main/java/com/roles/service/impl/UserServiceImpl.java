@@ -41,15 +41,17 @@ public class UserServiceImpl implements UserService {
         }
         Role role = new Role();
         role.setName(RoleName.USER);
-        Set<Role> roles = new HashSet<>();
-        roles.add(role);
+        role.setDescription("NORMAL");
+        Set<Role> roleSet = new HashSet<>();
+        roleSet.add(role);
 
         if(user.getEmail().split("@")[1].equals("admin.edu")){
             role.setName(RoleName.ADMIN);
-            roles.add(role);
+            role.setDescription("ADMIN");
+            roleSet.add(role);
 
         }
-
+        user.setRoles(roleSet);
         return repository.save(user);
     }
 
