@@ -72,4 +72,14 @@ public class UserServiceImpl implements UserService {
     public Optional<User> findById(Long id) {
         return repository.findById(id);
     }
+
+    public Boolean findByEmail(UserDTO userDTO){
+        if(!repository.existsByEmail(userDTO.getEmail())){
+            return false;
+        }
+        return true;
+    }
 }
+
+
+
