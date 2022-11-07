@@ -39,9 +39,7 @@ public class UserServiceImpl implements UserService {
         if(repository.existsByEmail(user.getEmail())){
              throw new EmailAlreadyExistException("Email ocupado, elija otro por favor");
         }
-        if(repository.existsByUsername(user.getUserName())){
-            throw new UserNameAlreadyExistsException("El nombre de usuario ya existe!! elija otro por favor");
-        }
+
         Role role = new Role();
         role.setName(RoleName.USER);
         role.setDescription("NORMAL");
@@ -63,9 +61,13 @@ public class UserServiceImpl implements UserService {
         return  repository.findAll();
     }
 
-    @Override
-    public User findOne(String username) {
-        return repository.findByUsername(username);
+
+
+    public Boolean findByUserName(String name){
+        if(repository.existsByUsername(name) != null){
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -73,8 +75,8 @@ public class UserServiceImpl implements UserService {
         return repository.findById(id);
     }
 
-    public Boolean findByEmail(UserDTO userDTO){
-        if(!repository.existsByEmail(userDTO.getEmail())){
+    public Boolean findByEmail(String email){
+        if(!repository.existsByEmail(email)){
             return false;
         }
         return true;
