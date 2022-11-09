@@ -7,6 +7,7 @@ import com.roles.service.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +18,8 @@ public class UserControllers {
     @Autowired
     private UserServiceImpl userService;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     public UserControllers(UserServiceImpl userService) {
         this.userService = userService;
     }
@@ -33,20 +36,20 @@ public class UserControllers {
         return userService.findAll();
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/users/{id}")
     public ResponseEntity<?> detele(@PathVariable Long id){
 
-        userService.delete(id);
-        return ResponseEntity.ok(userService.findAll());
+        return ResponseEntity.ok(userService.delete(id));
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @PutMapping("/users")
     public ResponseEntity<UserDTO> update(@RequestBody UserDTO userDTO){
         if(userDTO.getId() == null){
             return ResponseEntity.notFound().build();
         }
+        userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         userService.update(userDTO);
         return ResponseEntity.ok(userDTO);
 
@@ -59,6 +62,4 @@ public class UserControllers {
         }
         return ResponseEntity.ok(userService.findAllSoftdelete());
     }
-
-
 }

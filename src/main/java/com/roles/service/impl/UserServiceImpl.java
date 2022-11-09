@@ -102,8 +102,11 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     }
 
     public List<User> delete(Long id){
-        repository.deleteById(id);
-        return repository.findAll();
+        if(repository.existsById(id)){
+            repository.deleteById(id);
+            return repository.findAll();
+        }
+        throw new UserNameAlreadyExistsException("El id no existe");
     }
 
     /**

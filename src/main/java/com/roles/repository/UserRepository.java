@@ -22,7 +22,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query(value = "SELECT * FROM users WHERE users.soft_delete = true" ,nativeQuery = true)
     List<User> findAllUserSoftDelete();
 
-
     boolean existsByEmail(String email);
 
 }
