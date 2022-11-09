@@ -1,77 +1,64 @@
 package com.roles.controllers;
 
-import com.roles.dto.AuthToken;
 import com.roles.dto.LoginDTO;
 import com.roles.dto.UserDTO;
-import com.roles.security.JwtResponse;
-import com.roles.security.payload.jwt.JwtTokenUtil;
+import com.roles.entities.User;
 import com.roles.service.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/auth")
 public class UserControllers {
 
-
+    @Autowired
     private UserServiceImpl userService;
 
-    private AuthenticationManager authenticationManager;
-
-    private final JwtTokenUtil jwtTokenUtil;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-
-    public UserControllers(UserServiceImpl userService, AuthenticationManager authenticationManager, JwtTokenUtil jwtTokenUtil, PasswordEncoder passwordEncoder) {
+    public UserControllers(UserServiceImpl userService) {
         this.userService = userService;
-        this.authenticationManager = authenticationManager;
-        this.jwtTokenUtil = jwtTokenUtil;
-        this.passwordEncoder = passwordEncoder;
     }
 
-    @GetMapping("/")
-    public String index(){
-        return "Welcome to the App roles";
+    @PreAuthorize("hasRole('ROLE_ADMIN') or('ROLE_USER')")
+    @GetMapping("/index")
+    public String user(){
+        return "end point que se puede acceder desde cualquier usuario logueado";
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody UserDTO userDTO){
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/users")
+    public List<User> findAll(){
+        return userService.findAll();
+    }
 
-        if(userService.findByEmail(userDTO.getEmail())){
-           return ResponseEntity.badRequest().body("El email ya existe!!");
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<?> detele(@PathVariable Long id){
+
+        userService.delete(id);
+        return ResponseEntity.ok(userService.findAll());
+    }
+
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PutMapping("/users")
+    public ResponseEntity<UserDTO> update(@RequestBody UserDTO userDTO){
+        if(userDTO.getId() == null){
+            return ResponseEntity.notFound().build();
         }
+        userService.update(userDTO);
+        return ResponseEntity.ok(userDTO);
 
-        if(userService.findByUserName(userDTO.getUserName())){
-            return ResponseEntity.badRequest().body("El usuario ya existe!!");
+    }
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PostMapping("/users/softDelete")
+    public ResponseEntity<?> findAllSoftDelete(){
+        if(userService.findAllSoftdelete() == null){
+            return ResponseEntity.notFound().build();
         }
-        String password = passwordEncoder.encode(userDTO.getPassword());
-        userDTO.setPassword(password);
-        userService.save(userDTO);
-        return ResponseEntity.ok("Usuario creado con exito!!");
+        return ResponseEntity.ok(userService.findAllSoftdelete());
     }
 
-   @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) {
-       final Authentication authentication = authenticationManager.authenticate(
-               new UsernamePasswordAuthenticationToken(
-                    loginDTO.getUserName(),
-                       loginDTO.getPassword()
-               )
-       );
-       SecurityContextHolder.getContext().setAuthentication(authentication);
-       String token = jwtTokenUtil.generateJwtToken(authentication);
-       System.out.println(new JwtResponse(token));
-       UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-       return ResponseEntity.ok(new AuthToken(token));
-   }
 }

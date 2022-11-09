@@ -1,5 +1,6 @@
 package com.roles.service.impl;
 
+import com.roles.dto.LoginDTO;
 import com.roles.dto.UserDTO;
 import com.roles.entities.Role;
 import com.roles.entities.User;
@@ -10,7 +11,6 @@ import com.roles.repository.RoleRepository;
 import com.roles.repository.UserRepository;
 import com.roles.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,10 +18,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.*;
 
-@Service
+@Service("userDetailsService")
 public class UserServiceImpl implements UserDetailsService, UserService {
 
     @Autowired
@@ -29,7 +28,6 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
     @Autowired
     private RoleRepository roleRepository;
-
 
     public UserServiceImpl(UserRepository repository, RoleRepository roleRepository) {
         this.repository = repository;
@@ -58,7 +56,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
         }
         user.setRoles(roleSet);
-        user.setPassowrd(user.getPassowrd());
+        user.setSorfDelete(false);
         return repository.save(user);
     }
 
@@ -91,8 +89,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     public UserDetails loadUserByUsername(String nombre) throws UsernameNotFoundException {
         com.roles.entities.User user = repository.findByUsername(nombre);
 
-        return new org.springframework.security.core.userdetails.User(
-                user.getUserName(), user.getPassowrd(), new ArrayList<>());
+        return UserDetailsMapper.build(user);
     }
 
 
@@ -103,6 +100,32 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         });
         return authorities;
     }
+
+    public List<User> delete(Long id){
+        repository.deleteById(id);
+        return repository.findAll();
+    }
+
+    /**
+     * todo falta terminar
+     * @param userDTO
+     * @return userDTO
+     */
+    public UserDTO update(UserDTO userDTO){
+        User user = userDTO.transformToUser();
+        if(!repository.existsById(user.getId())){
+            throw new UserNameAlreadyExistsException("El id no existe");
+        }
+
+        save(userDTO);
+        return userDTO;
+    }
+
+    public List<User> findAllSoftdelete(){
+        return repository.findAllUserSoftDelete();
+    }
+
+
 }
 
 

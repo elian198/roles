@@ -12,6 +12,8 @@ public class UserDTO {
 
     private String password;
 
+    private Boolean soft_delete;
+
     public UserDTO() { }
 
     public String getUserName() {
@@ -20,6 +22,14 @@ public class UserDTO {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public Boolean getSoft_delete() {
+        return soft_delete;
+    }
+
+    public void setSoft_delete(Boolean soft_delete) {
+        this.soft_delete = soft_delete;
     }
 
     public String getEmail() {
@@ -54,6 +64,7 @@ public class UserDTO {
     user.setUserName(userName);
     user.setEmail(email);
     user.setPassowrd(password);
+    user.setSorfDelete(soft_delete);
 
     return user;
     }
