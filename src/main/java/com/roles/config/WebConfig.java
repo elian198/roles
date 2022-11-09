@@ -24,6 +24,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
@@ -61,6 +62,7 @@ public class WebConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/").permitAll()
                 .antMatchers("/register").permitAll()
                 .antMatchers("/login").permitAll()
+                .antMatchers("/inicio").hasRole("ADMIN")
 
                 .anyRequest().authenticated();
 

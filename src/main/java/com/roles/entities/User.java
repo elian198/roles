@@ -1,10 +1,15 @@
 package com.roles.entities;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
 import javax.persistence.*;
 import java.util.Set;
 
 @Entity
 @Table(name = "USERS")
+@SQLDelete(sql = "UPDATE users SET soft_delete=true WHERE id = ?")
+@Where(clause = "soft_delete = false")
 public class User {
 
     @Id
@@ -19,6 +24,10 @@ public class User {
 
     @Column(name = "PASSWORD", nullable = false)
     private String passowrd;
+
+    @Column(name = "SOFT_DELETE")
+    private Boolean sorfDelete;
+
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "USER_ROLES",
@@ -66,6 +75,14 @@ public class User {
 
     public Set<Role> getRoles() {
         return roles;
+    }
+
+    public Boolean getSorfDelete() {
+        return sorfDelete;
+    }
+
+    public void setSorfDelete(Boolean sorfDelete) {
+        this.sorfDelete = sorfDelete;
     }
 
     public void setRoles(Set<Role> roles) {
